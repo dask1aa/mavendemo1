@@ -1,9 +1,12 @@
 package com.nowcoder.community1.controller;
 
 import com.nowcoder.community1.service.AlphaService;
+import com.nowcoder.community1.util.CommunityUtil;
 import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +17,8 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+
+
 
 @Controller
 @RequestMapping("/alpha") // 给这个类取一个访问的名
@@ -140,6 +145,44 @@ public class AlphaController {
         mp.put("salary",26000.00);
         lst.add(mp);
         return lst;
+    }
 
+    // cookie 示例
+    @RequestMapping(path = "/cookie/set", method = RequestMethod.GET) // 当Spring收到一个路径为/home的GET请求
+    @ResponseBody
+    public String setCookie(HttpServletResponse response) {
+        //  创建cookie
+        Cookie cookie = new Cookie("code", CommunityUtil.generateUUID());
+        // 设置cookie生效的范围
+        cookie.setPath("/community/alpha");
+        // 设置cookie的生存时间
+        cookie.setMaxAge(60 * 10);
+        // 发送cookie
+        response.addCookie(cookie);
+        return "set cookie";
+    }
+
+    @RequestMapping(path = "/cookie/get", method = RequestMethod.GET) // 当Spring收到一个路径为/home的GET请求
+    @ResponseBody
+    public String getCookie(@CookieValue("code") String code) { // @CookieValue("code") String code注解的意思是从cookie中取key为code的值赋给code
+        System.out.println(code);
+        return "get cookie";
+    }
+
+    // session 示例
+    @RequestMapping(path = "/session/set", method = RequestMethod.GET)
+    @ResponseBody
+    public String setSession(HttpSession session) {// 服务器会自动创建 Session 和 response与model 类似
+        session.setAttribute("id",1);
+        session.setAttribute("name","Test" );
+        return "set session";
+    }
+
+    @RequestMapping(path = "/session/get", method = RequestMethod.GET)
+    @ResponseBody
+    public String getSession(HttpSession session) { // 这个session 也会从Spring MVC中自动注入
+        System.out.println(session.getAttribute("id"));
+        System.out.println(session.getAttribute("name"));
+        return "get session";
     }
 }
